@@ -115,6 +115,127 @@ y_pred
 from sklearn.metrics import accuracy_score
 accuracy_score(y_test, y_pred)
 
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+import requests
+
+df2 = pd.read_csv('/workspaces/Finarosalina_diabetes_machine-learning-py-template/data/raw/diabetes.csv')
+
+df2.shape
+
+df2.isnull().sum()
+
+duplicados = df2.duplicated()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Crear un gráfico de caja para cada columna del DataFrame
+plt.figure(figsize=(16,12))
+for i, column in enumerate(df2.columns):
+    plt.subplot(3, 3, i+1)  # 3 filas, 3 columnas de gráficos
+    sns.boxplot(x=df2[column])
+    plt.title(f"Outliers en {column}")
+
+plt.tight_layout()
+plt.show()
+
+#  20 > BMI < 50  outliers
+
+bmi_outliers= df2[((df2['BMI']<20) | (df2['BMI']>50) )]
+bmi_outliers
+
+# bmi_outliers= df2[((df2['BMI']<20) | (df2['BMI']>50) )]
+df2 = df2[((df2['BMI'] > 20) & (df2['BMI'] < 50))]
+print("Tamaño después de eliminar outliers:", df2.shape)
+
+
+# BloodPressure 40-100
+
+bloodPressure_outliers = df2[((df2['BloodPressure'] < 40) | (df2['BloodPressure'] > 100))]
+bloodPressure_outliers.shape
+
+df2 = df2[((df2['BloodPressure'] > 40) & (df2['BloodPressure'] < 100))]
+print("Tamaño después de eliminar outliers:", df2.shape)
+
+# Pregnancies > 13
+
+Pregnancies = df2[df2['Pregnancies']> 13]
+Pregnancies.shape
+
+df2 = df2[df2['Pregnancies']<= 13]
+print("Tamaño después de eliminar outliers:", df2.shape)
+
+# Glucose 0
+
+Glucose_outliers = df2[df2['Glucose']== 0]
+Glucose_outliers
+
+df2 = df2[df2['Glucose'] != 0]
+print("Tamaño después de eliminar outliers:", df2.shape)
+
+# VARIABLES QUE VOY A USAR: Pregnancies,	Glucose, 	BloodPressure, 	Insulin, 	BMI, 	DiabetesPedigreeFunction, 	Age
+df2 = df2.drop('SkinThickness', axis=1)
+
+
+# Age > 68
+
+Age_outliers = df2[df2['Age']> 67]
+Age_outliers
+
+df2=df2[df2['Age']< 67]
+print("Tamaño después de eliminar outliers:", df2.shape)
+
+# Insulin
+Insulin_outliers= df2[df2['Insulin']>320]
+Insulin_outliers.shape
+
+df2=df2[df2['Insulin']< 320]
+print("Tamaño después de eliminar outliers:", df2.shape)
+
+# DiabetesPedigreeFunction  tiene demasiados para eliminar.
+DiabetesPedigreeFunction_outliers= df2[df2['Insulin']>1.6]
+DiabetesPedigreeFunction_outliers
+
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+X = df2.drop("Outcome", axis=1) 
+y = df2["Outcome"] 
+
+X_train2, X_test2, y_train2, y_test2 = train_test_split(X, y, test_size=0.2, random_state=42)
+
+clf = DecisionTreeClassifier(random_state=42, max_depth=5)
+
+clf.fit(X_train2, y_train2)
+
+
+y_pred2 = clf.predict(X_test2)
+
+
+accuracy = accuracy_score(y_test2, y_pred2)
+print(f"Accuracy: {accuracy:.2f}")
+
+
+print("\nClassification Report:")
+print(classification_report(y_test2, y_pred2))
+
+
+# Guardar los conjuntos de datos como archivos CSV
+X_train2.to_csv('X_train2.csv', index=False)
+X_test2.to_csv('X_test2.csv', index=False)
+y_train2.to_csv('y_train2.csv', index=False)
+y_test2.to_csv('y_test2.csv', index=False)
+
+
 from pickle import dump
 
 dump(model, open("/workspaces/Finarosalina_diabetes_machine-learning-py-template/models/decision_tree_classifier_default_42.sav", "wb"))
